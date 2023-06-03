@@ -66,8 +66,11 @@ class Window(QMainWindow):
             Генерация ключей гибридной системы шифрования
             :return: None
         """
-        self.cryptography.generate_keys()
-
+        self.cryptography.generate_symmetric_key()
+        self.cryptography.generate_assymmetric_key()
+        self.cryptography.serealization_assymetric_keys()
+        self.cryptography.write_key_bytes()
+        
     def encrypt_data(self) -> None:
         """
             Шифрование данных
@@ -76,7 +79,11 @@ class Window(QMainWindow):
             :return: None
         """
         self.set_path_input_and_output()
+        self.cryptography.read_key()
+        self.cryptography.symmetric_key_encription()
+        self.cryptography.read_file(self.input_file_path)
         self.cryptography.encrypt_data(self.input_file_path, self.output_file_path)
+        self.cryptography.write_file(self.output_file_path)
 
     def decrypt_data(self) -> None:
         """
@@ -86,7 +93,9 @@ class Window(QMainWindow):
             :return: None
         """
         self.set_path_input_and_output()
+        self.cryptography.read_file(self.input_file_path)
         self.cryptography.decrypt_data(self.input_file_path, self.output_file_path)
+        self.cryptography.write_file(self.output_file_path)
 
     def exit(self) -> None:
         """
