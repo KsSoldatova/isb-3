@@ -15,15 +15,12 @@ class Cryptography:
         self.private_key_path = private_key_path
 
     def generate_keys(self) -> None:
-        # Генерация ключа для симметричного алгоритма
         symmetric_key = os.urandom(16)
-        # Генерация ключей для ассиметричного алгоритма
         private_key = asymmetric.rsa.generate_private_key(
             public_exponent=65537,
             key_size=2048,
         )
         public_key = private_key.public_key()
-        # Сериализация ассиметричных ключей
         private_key_bytes = private_key.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.PKCS8,
@@ -43,7 +40,6 @@ class Cryptography:
                 f.write(private_key_bytes)
         except Exception as e:
             logging.error(e)
-        # Шифрование ключа симметричного шифрования открытым ключом и сохранение по указанному пути
         encrypted_symmetric_key = public_key.encrypt(
             symmetric_key,
             asymmetric.padding.OAEP(
@@ -53,20 +49,17 @@ class Cryptography:
             )
         )
         try:
-            # Запись зашифрованного ключа в файл
             with open(self.symmetric_key_path, 'wb') as f:
                 f.write(encrypted_symmetric_key)
         except Exception as e:
             logging.error(e)
 
     def encrypt_data(self, input_file_path: str, output_file_path: str) -> None:
-        # Считывание зашифрованного ключа симметричного шифрования из файла
         try:
             with open(self.symmetric_key_path, 'rb') as f:
                 encrypted_symmetric_key = f.read()
         except Exception as e:
             logging.error(e)
-        # Расшифровка ключа симметричного шифрования закрытым ключом
         try:
             with open(self.private_key_path, 'rb') as f:
                 private_key = serialization.load_pem_private_key(
@@ -83,7 +76,6 @@ class Cryptography:
                 label=None
             )
         )
-        # Чтение данных из файла
         try:
             with open(input_file_path, 'rb') as f:
                 data = f.read()
@@ -97,7 +89,6 @@ class Cryptography:
         encryptor = cipher.encryptor()
         encrypted_data = encryptor.update(padded_text) + encryptor.finalize()
         encrypted_data = iv + encrypted_data
-        # Сохранение зашифрованных данных в файл
         try:
             with open(output_file_path, 'wb') as f:
                 f.write(encrypted_data)
@@ -105,13 +96,11 @@ class Cryptography:
             logging.error(e)
 
     def decrypt_data(self, input_file_path: str, output_file_path: str) -> None:
-        # Считывание зашифрованного ключа симметричного шифрования из файла
         try:
             with open(self.symmetric_key_path, 'rb') as f:
                 encrypted_symmetric_key = f.read()
         except Exception as e:
             logging.error(e)
-        # Расшифровка ключа симметричного шифрования закрытым ключом
         try:
             with open(self.private_key_path, 'rb') as f:
                 private_key = serialization.load_pem_private_key(
@@ -128,13 +117,11 @@ class Cryptography:
                 label=None
             )
         )
-        # Чтение зашифрованных данных из файла
         try:
             with open(input_file_path, 'rb') as f:
                 encrypted_data = f.read()
         except Exception as e:
             logging.error(e)
-        # Расшифровка данных симметричным алгоритмом
         iv = encrypted_data[:16]
         encrypted_data = encrypted_data[16:]
         cipher = Cipher(algorithms.SEED(symmetric_key), modes.CBC(iv))
